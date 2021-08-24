@@ -1,0 +1,19 @@
+[package]
+name = "nushell-api"
+version = "0.1.0"
+authors = ["Tanishq Kancharla <tklightningfast@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.rocket]
+version = "0.5.0-rc.1"
+features = ["json"]
+
+[dependencies]
+nu-cli = "0.35.0"
+nu-engine = "0.35.0"
+nu-command = "0.35.0"
+nu-errors = "0.35.0"
+nu-protocol = "0.35.0"
+nu-source = "0.35.0"
