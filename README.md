@@ -1,14 +1,9 @@
 # Nushell-API
 
-A Rocket server that exposes an endpoint to run sandboxed Nushell commands.
+A Discord bot built with Serenity that runs Nushell commands in a sandboxed context.
 
 ## To use
 
-Run `cargo run` and then send a post command as follows:
+Load your bot discord token into the `DISCORD_TOKEN` environment variable. Run `cargo run`.
 
-```sh
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{"input":"config"}' \
-  http://localhost:8000/
-```
+You should see you discord bot activate, and you can run commands with the prefix `nu!` e.g. `nu! help`.
