@@ -1,0 +1,11 @@
+int_1,int_2,float_1,float_2,first,second,third,word
+1,11,0.1,1.0,a,b,c,first
+2,12,0.2,1.0,a,b,c,second
+3,13,0.3,2.0,a,b,c,third
+4,14,0.4,3.0,b,a,c,second
+0,15,0.5,4.0,b,a,a,third
+6,16,0.6,5.0,b,a,a,second
+7,17,0.7,6.0,b,c,a,third
+8,18,0.8,7.0,c,c,b,eight
+9,19,0.9,8.0,c,c,b,ninth
+0,10,0.0,9.0,c,c,b,ninth

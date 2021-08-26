@@ -1,9 +1,6 @@
-#[macro_use] extern crate rocket;
 use nu_engine::EvaluationContext;
 use nu_errors::ShellError;
-use rocket::serde::json::Json;
-use rocket::serde::{Deserialize};
-use nu_cli::parse_and_eval;
+use nu_cli::{create_default_context, parse_and_eval};
 mod context;
 mod run_external;
 use context::create_sandboxed_context;
@@ -54,10 +51,12 @@ impl EventHandler for Handler {
             println!("Received command: {}", command);
             let result = match parse_and_eval(command, &self.sandbox) {
                 Ok(res) => {
-                    format!("`{}`", res.to_string())
+                    println!("Response: {}", res);
+                    format!("```sh\n{}```", res)
                 },
                 Err(why) => {
-                    format!("`{}`", why.to_string())
+                    println!("Response: {:#?}", why);
+                    format!("```sh\n{:#?}```", why.into_diagnostic())
                 }
             };
 
@@ -73,16 +72,11 @@ impl EventHandler for Handler {
     }
 }
 
-async fn create_context() -> Result<EvaluationContext, ShellError> {
-    Ok(create_sandboxed_context()?)
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
-    let sandbox = create_context().await?;
-
+    let sandbox = create_sandboxed_context()?;
     let framework = StandardFramework::new()
         .configure(|c| c.prefix("nu! ")) 
         .group(&GENERAL_GROUP);
