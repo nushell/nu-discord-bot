@@ -11,6 +11,9 @@ version = "0.5.0-rc.1"
 features = ["json"]
 
 [dependencies]
+dotenv = "0.15.0"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+serenity = "0.10"
 nu-cli = "0.35.0"
 nu-engine = "0.35.0"
 nu-command = "0.35.0"
