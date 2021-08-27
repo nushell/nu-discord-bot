@@ -1,9 +1,8 @@
 // use derive_new::new;
-use std::path::PathBuf;
 use nu_command::{ActionStream, InputStream};
-use nu_engine::{whole_stream_command, EvaluationContext, Example, CommandArgs};
 use nu_engine::WholeStreamCommand;
 use nu_engine::{evaluate_baseline_expr, shell::CdArgs};
+use nu_engine::{whole_stream_command, CommandArgs, EvaluationContext, Example};
 use nu_errors::ShellError;
 use nu_protocol::{
     hir::{ExternalArgs, ExternalCommand, SpannedExpression},
@@ -11,27 +10,10 @@ use nu_protocol::{
 };
 use nu_protocol::{Signature, SyntaxShape};
 use nu_source::Tagged;
+use std::path::PathBuf;
 
 // #[derive(new)]
-pub struct RunExternalCommand {
-}
-
-fn spanned_expression_to_string(
-    expr: SpannedExpression,
-    ctx: &EvaluationContext,
-) -> Result<String, ShellError> {
-    let value = evaluate_baseline_expr(&expr, ctx)?;
-
-    if let UntaggedValue::Primitive(Primitive::String(s)) = value.value {
-        Ok(s)
-    } else {
-        Err(ShellError::labeled_error(
-            "Expected string for command name",
-            "expected string",
-            expr.span,
-        ))
-    }
-}
+pub struct RunExternalCommand {}
 
 impl WholeStreamCommand for RunExternalCommand {
     fn name(&self) -> &str {
@@ -59,7 +41,9 @@ impl WholeStreamCommand for RunExternalCommand {
     }
 
     fn run(&self, _: CommandArgs) -> Result<nu_command::InputStream, ShellError> {
-        return Ok(InputStream::one("External commands are not supported yet\n"))
+        return Ok(InputStream::one(
+            "External commands are not supported yet\n",
+        ));
     }
 
     // fn run_with_actions(&self, args: CommandArgs) -> Result<ActionStream, ShellError> {

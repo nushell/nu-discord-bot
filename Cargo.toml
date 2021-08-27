@@ -10,38 +10,38 @@ edition = "2018"
 dotenv = "0.15.0"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 serenity = "0.10"
-nu-cli = { version = "0.35.0", default-features=false }
-nu-command = { version = "0.35.0" }
-nu-completion = { version = "0.35.0" }
-nu-data = { version = "0.35.0"}
-nu-engine = { version = "0.35.0"}
-nu-errors = { version = "0.35.0" }
-nu-parser = { version = "0.35.0" }
-nu-path = { version = "0.35.0"}
-nu-plugin = { version = "0.35.0" }
-nu-protocol = { version = "0.35.0" }
-nu-source = { version = "0.35.0"}
-nu-value-ext = { version = "0.35.0" }
+nu-cli = { version = "0.36.0", default-features=false }
+nu-command = { version = "0.36.0" }
+nu-completion = { version = "0.36.0" }
+nu-data = { version = "0.36.0"}
+nu-engine = { version = "0.36.0"}
+nu-errors = { version = "0.36.0" }
+nu-parser = { version = "0.36.0" }
+nu-path = { version = "0.36.0"}
+nu-plugin = { version = "0.36.0" }
+nu-protocol = { version = "0.36.0" }
+nu-source = { version = "0.36.0"}
+nu-value-ext = { version = "0.36.0" }
 
-nu_plugin_binaryview = { version = "0.35.0", optional=true }
-nu_plugin_chart = { version = "0.35.0", optional=true }
-nu_plugin_fetch = { version = "0.35.0", optional=true }
-nu_plugin_from_bson = { version = "0.35.0", optional=true }
-nu_plugin_from_sqlite = { version = "0.35.0", optional=true }
-nu_plugin_inc = { version = "0.35.0", optional=true }
-nu_plugin_match = { version = "0.35.0", optional=true }
-nu_plugin_post = { version = "0.35.0", optional=true }
-nu_plugin_ps = { version = "0.35.0", optional=true }
-nu_plugin_query_json = { version = "0.35.0", optional=true }
-nu_plugin_s3 = { version = "0.35.0", optional=true }
-nu_plugin_selector = { version = "0.35.0", optional=true }
-nu_plugin_start = { version = "0.35.0", optional=true }
-nu_plugin_sys = { version = "0.35.0", optional=true }
-nu_plugin_textview = { version = "0.35.0", optional=true }
-nu_plugin_to_bson = { version = "0.35.0", optional=true }
-nu_plugin_to_sqlite = { version = "0.35.0", optional=true }
-nu_plugin_tree = { version = "0.35.0", optional=true }
-nu_plugin_xpath = { version = "0.35.0", optional=true }
+nu_plugin_binaryview = { version = "0.36.0", optional=true }
+nu_plugin_chart = { version = "0.36.0", optional=true }
+nu_plugin_fetch = { version = "0.36.0", optional=true }
+nu_plugin_from_bson = { version = "0.36.0", optional=true }
+nu_plugin_from_sqlite = { version = "0.36.0", optional=true }
+nu_plugin_inc = { version = "0.36.0", optional=true }
+nu_plugin_match = { version = "0.36.0", optional=true }
+nu_plugin_post = { version = "0.36.0", optional=true }
+nu_plugin_ps = { version = "0.36.0", optional=true }
+nu_plugin_query_json = { version = "0.36.0", optional=true }
+nu_plugin_s3 = { version = "0.36.0", optional=true }
+nu_plugin_selector = { version = "0.36.0", optional=true }
+nu_plugin_start = { version = "0.36.0", optional=true }
+nu_plugin_sys = { version = "0.36.0", optional=true }
+nu_plugin_textview = { version = "0.36.0", optional=true }
+nu_plugin_to_bson = { version = "0.36.0", optional=true }
+nu_plugin_to_sqlite = { version = "0.36.0", optional=true }
+nu_plugin_tree = { version = "0.36.0", optional=true }
+nu_plugin_xpath = { version = "0.36.0", optional=true }
 
 [features]
 default = [

@@ -1,7 +1,7 @@
+use crate::run_external::RunExternalCommand;
 use nu_command::commands::*;
 use nu_engine::{whole_stream_command, EvaluationContext};
 use std::error::Error;
-use crate::run_external::{RunExternalCommand};
 
 pub fn create_sandboxed_context() -> Result<EvaluationContext, Box<dyn Error>> {
     let context = EvaluationContext::basic();
@@ -238,7 +238,6 @@ pub fn create_sandboxed_context() -> Result<EvaluationContext, Box<dyn Error>> {
             whole_stream_command(Random),
             whole_stream_command(RandomBool),
             whole_stream_command(RandomDice),
-
             #[cfg(feature = "uuid_crate")]
             whole_stream_command(RandomUUID),
             whole_stream_command(RandomInteger),
@@ -264,7 +263,6 @@ pub fn create_sandboxed_context() -> Result<EvaluationContext, Box<dyn Error>> {
             whole_stream_command(Seq),
             whole_stream_command(SeqDates),
             whole_stream_command(TermSize),
-            
         ]);
 
         //Dataframe commands
@@ -333,6 +331,5 @@ pub fn create_sandboxed_context() -> Result<EvaluationContext, Box<dyn Error>> {
         ]);
     }
 
-    println!("{}", context.is_command_registered("help"));
     Ok(context)
 }
