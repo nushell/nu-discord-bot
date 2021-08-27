@@ -1,0 +1,1 @@
+web: ./target/release/nushell-api

@@ -54,7 +54,7 @@ default = [
     # "rustyline-support",
     # "match",
     # "post",
-    # "fetch",
+    "fetch",
     # "zip-support",
     "dataframe",
 ]
@@ -68,3 +68,4 @@ dataframe = [
     "nu_plugin_post/dataframe",
     "nu_plugin_to_bson/dataframe",
 ]
+fetch = ["nu_plugin_fetch"]

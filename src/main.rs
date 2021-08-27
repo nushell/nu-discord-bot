@@ -21,6 +21,7 @@ use serenity::model::channel::Message;
 use serenity::model::prelude::Ready;
 use std::env;
 use std::error::Error;
+use std::time::Duration;
 
 #[command]
 async fn about(ctx: &Context, msg: &Message) -> CommandResult {
@@ -46,8 +47,8 @@ enum Command {
     Block(Vec<String>),
 }
 
-fn parse_command<'a>(msg: &'a Message) -> Option<Command> {
-    match msg.content.trim().strip_prefix("nu! `") {
+fn parse_command<'a>(msg: &'a str) -> Option<Command> {
+    match msg.trim().strip_prefix("nu! `") {
         Some(cmd) => {
             // Single line format:
             // nu! `[command]`
@@ -59,12 +60,7 @@ fn parse_command<'a>(msg: &'a Message) -> Option<Command> {
             // ```
             // [commands]
             // ```
-            let mut cmds: Vec<String> = msg
-                .content
-                .trim()
-                .split("\n")
-                .map(|x| x.to_string())
-                .collect();
+            let mut cmds: Vec<String> = msg.trim().split("\n").map(|x| x.to_string()).collect();
             if cmds.get(0)?.trim() != "nu!"
                 || !cmds.get(1)?.trim().starts_with("```")
                 || cmds.last()?.trim() != "```"
@@ -96,29 +92,59 @@ fn run_cmd(cmd: &str, sandbox: &EvaluationContext) -> String {
     }
 }
 
+enum HandlerError {
+    ParseError,
+    TimeoutError,
+    SandboxError,
+}
+
+async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
+    if let Ok(res) = tokio::time::timeout(Duration::new(5, 0), async {
+        if let Some(command) = parse_command(&msg.content) {
+            match create_sandboxed_context() {
+                Ok(sandbox) => match command {
+                    Command::One(cmd) => Ok(format!(
+                        "```md\n> {} | to md --pretty\n{}\n```",
+                        cmd,
+                        run_cmd(&cmd, &sandbox)
+                    )),
+                    Command::Block(cmds) => {
+                        // Run commands w a semicolon b/w them. If they just run one by one
+                        // the variables don't persis after each run.
+                        let result = run_cmd(&cmds.join(";"), &sandbox);
+                        Ok(format!(
+                            "```md\n> {} | to md --pretty\n{}\n```",
+                            cmds.join(";\n> "),
+                            result
+                        ))
+                    }
+                },
+                Err(e) => Err(HandlerError::SandboxError),
+            }
+        } else {
+            Err(HandlerError::ParseError)
+        }
+    })
+    .await
+    {
+        res
+    } else {
+        Err(HandlerError::TimeoutError)
+    }
+}
+
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.content.starts_with("nu!") {
-            let result = if let Some(command) = parse_command(&msg) {
-                match create_sandboxed_context() {
-                    Ok(sandbox) =>
-                 match command {
-                        Command::One(cmd) => format!("```md\n> {} | to md --pretty\n{}\n```", cmd, run_cmd(&cmd, &sandbox)),
-                        Command::Block(cmds) => {
-                            // Run commands w a semicolon b/w them. If they just run one by one
-                            // the variables don't persis after each run.
-                            let result = run_cmd(&cmds.join(";"), &sandbox);
-                            format!("```md\n> {} | to md --pretty\n{}\n```", cmds.join(";\n> "), result)
-                        }
-                    }
-                    Err(e) => format!("Error creating a sandbox: {}", e),
-                }
-            } else {
-                "```md\nImproperly formatted command.``` ".to_string()
+            let reply = match handle_message(&msg).await {
+                Ok(res) => res,
+                Err(HandlerError::ParseError) => "Improper formatting. Format as either `nu! \\`[command]\\` ` or \"nu!\" followed by a code block.".to_string(),
+                Err(HandlerError::SandboxError) => "Could not create a sandbox. This is a bug.".to_string(),
+                Err(HandlerError::TimeoutError) => "Timeout on command (5s).".to_string()
             };
 
-            if let Err(e) = msg.reply(ctx, result).await {
+            if let Err(e) = msg.reply(ctx, reply).await {
                 println!("Error when replying to message: {}", e);
             }
         }
