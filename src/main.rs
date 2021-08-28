@@ -112,11 +112,7 @@ async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
                         // Run commands w a semicolon b/w them. If they just run one by one
                         // the variables don't persis after each run.
                         let result = run_cmd(&cmds.join(";"), &sandbox);
-                        Ok(format!(
-                            "```md\n> {} \n{}\n```",
-                            cmds.join(";\n> "),
-                            result
-                        ))
+                        Ok(format!("```md\n> {} \n{}\n```", cmds.join(";\n> "), result))
                     }
                 },
                 Err(e) => Err(HandlerError::SandboxError),

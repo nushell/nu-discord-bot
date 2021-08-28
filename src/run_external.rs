@@ -1,16 +1,9 @@
 // use derive_new::new;
-use nu_command::{ActionStream, InputStream};
+use nu_command::InputStream;
 use nu_engine::WholeStreamCommand;
-use nu_engine::{evaluate_baseline_expr, shell::CdArgs};
-use nu_engine::{whole_stream_command, CommandArgs, EvaluationContext, Example};
+use nu_engine::{CommandArgs, Example};
 use nu_errors::ShellError;
-use nu_protocol::{
-    hir::{ExternalArgs, ExternalCommand, SpannedExpression},
-    Primitive, UntaggedValue,
-};
 use nu_protocol::{Signature, SyntaxShape};
-use nu_source::Tagged;
-use std::path::PathBuf;
 
 // #[derive(new)]
 pub struct RunExternalCommand {}
