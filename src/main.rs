@@ -104,7 +104,7 @@ async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
             match create_sandboxed_context() {
                 Ok(sandbox) => match command {
                     Command::One(cmd) => Ok(format!(
-                        "```md\n> {} | to md --pretty\n{}\n```",
+                        "```md\n> {} \n{}\n```",
                         cmd,
                         run_cmd(&cmd, &sandbox)
                     )),
@@ -113,7 +113,7 @@ async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
                         // the variables don't persis after each run.
                         let result = run_cmd(&cmds.join(";"), &sandbox);
                         Ok(format!(
-                            "```md\n> {} | to md --pretty\n{}\n```",
+                            "```md\n> {} \n{}\n```",
                             cmds.join(";\n> "),
                             result
                         ))
@@ -139,7 +139,7 @@ impl EventHandler for Handler {
         if msg.content.starts_with("nu!") {
             let reply = match handle_message(&msg).await {
                 Ok(res) => res,
-                Err(HandlerError::ParseError) => "Improper formatting. Format as either `nu! \\`[command]\\` ` or \"nu!\" followed by a code block.".to_string(),
+                Err(HandlerError::ParseError) => "Improper formatting. Format as either \"nu! `[command]`\" or \"nu!\" followed by a code block.".to_string(),
                 Err(HandlerError::SandboxError) => "Could not create a sandbox. This is a bug.".to_string(),
                 Err(HandlerError::TimeoutError) => "Timeout on command (5s).".to_string()
             };
