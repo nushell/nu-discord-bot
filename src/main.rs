@@ -77,15 +77,15 @@ fn parse_command<'a>(msg: &'a str) -> Option<Command> {
 }
 
 fn run_cmd(cmd: &str, sandbox: &EvaluationContext) -> String {
-    let cmd = format!("{} | to md --pretty \n", cmd);
+    let cmd = format!("{}\n", cmd);
     match parse_and_eval(&cmd, &sandbox) {
         Ok(res) => {
-            println!("> {}{}", cmd, res);
+            // println!("> {}{}", cmd, res);
             res
             // format!("> {}{}", cmd, res)
         }
         Err(why) => {
-            println!("> {}{:#?}", cmd, why);
+            // println!("> {}{:#?}", cmd, why);
             // why.into_diagnostic()
             format!("{:#?}", why.into_diagnostic())
         }
@@ -110,7 +110,7 @@ async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
                     )),
                     Command::Block(cmds) => {
                         // Run commands w a semicolon b/w them. If they just run one by one
-                        // the variables don't persis after each run.
+                        // the variables don't persist after each run.
                         let result = run_cmd(&cmds.join(";"), &sandbox);
                         Ok(format!("```md\n> {} \n{}\n```", cmds.join(";\n> "), result))
                     }

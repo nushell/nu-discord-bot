@@ -54,9 +54,9 @@ default = [
     # "rustyline-support",
     # "match",
     # "post",
-    "fetch",
+    # "fetch",
     # "zip-support",
-    "dataframe",
+    # "dataframe",
 ]
 #dataframe feature for nushell
 dataframe = [
