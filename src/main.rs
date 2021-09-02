@@ -140,8 +140,12 @@ impl EventHandler for Handler {
                 Err(HandlerError::TimeoutError) => "Timeout on command (5s).".to_string()
             };
 
-            if let Err(e) = msg.reply(ctx, reply).await {
-                println!("Error when replying to message: {}", e);
+            if let Err(e) = msg.reply(&ctx, reply).await {
+                let message = format!("Error when replying to message: {}", e);
+                // Try to reply with the error message.
+                if let Err(e) = msg.reply(ctx, message).await {
+                    println!("Error when replying to message: {}", e);
+                }
             }
         }
     }
