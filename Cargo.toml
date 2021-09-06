@@ -1,5 +1,5 @@
 [package]
-name = "nushell-api"
+name = "nu-discord-bot"
 version = "0.1.0"
 authors = ["Tanishq Kancharla <tklightningfast@gmail.com>"]
 edition = "2018"
