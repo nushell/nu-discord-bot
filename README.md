@@ -1,4 +1,4 @@
-# Nushell-API
+# Nu-discord-bot
 
 A Discord bot built with Serenity that runs Nushell commands in a sandboxed context.
 
