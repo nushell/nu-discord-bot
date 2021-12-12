@@ -1,3 +1,4 @@
+use crate::discordview::Discordview;
 use crate::run_external::RunExternalCommand;
 use nu_command::commands::*;
 use nu_engine::{whole_stream_command, EvaluationContext};
@@ -8,6 +9,7 @@ pub fn create_sandboxed_context() -> Result<EvaluationContext, Box<dyn Error>> {
 
     {
         context.add_commands(vec![
+            whole_stream_command(Discordview),
             // Fundamentals
             whole_stream_command(NuPlugin),
             whole_stream_command(Let),
