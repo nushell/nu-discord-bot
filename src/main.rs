@@ -231,8 +231,6 @@ async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
     let block = parse_command(&mut sandbox, &mut stack, source)?;
     let out = eval_block(&mut sandbox, &mut stack, &block).map_err(HandlerError::ShellError);
 
-    println!("{:?}", out);
-
     out
 }
 
@@ -241,7 +239,11 @@ impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.content.starts_with("nu!") {
             let reply = match try_handle_message(&msg).await {
-                Ok(res) => format!("```\n{}\n```", res),
+                Ok(res) => match res.is_empty() {
+                  true => format!("```\n*Empty*\n```"),
+                  false => format!("```\n{}\n```", res)
+                }
+
                 Err(HandlerError::FormatError) => "Improper formatting. Format as either \"nu! `[command]`\" or \"nu!\" followed by a code block.".to_string(),
                 Err(HandlerError::ParseError(parse_error)) => parse_error.to_string(),
                 Err(HandlerError::ShellError(shell_error)) => shell_error.to_string(),
