@@ -274,7 +274,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let gateway_intents = GatewayIntents::GUILD_MESSAGES.union(GatewayIntents::MESSAGE_CONTENT);
 
     // Login with a bot token from the environment
-    let token = env::var("DISCORD_TOKEN_LOCAL").expect("token");
+    let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN environment variable expected.");
     let mut client = Client::builder(token, gateway_intents)
         .event_handler(Handler)
         .framework(framework)
