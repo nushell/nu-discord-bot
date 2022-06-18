@@ -1,1 +1,1 @@
-web: target/release/nu-discord-bot
+worker: target/release/nu-discord-bot
