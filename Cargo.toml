@@ -8,7 +8,6 @@ version = "0.2.0"
 
 [dependencies]
 dotenv = "0.15.0"
-nu = "0.64.0"
 nu-cli = "0.64.0"
 nu-command = "0.64.0"
 nu-engine = "0.64.0"
@@ -17,29 +16,3 @@ nu-protocol = "0.64.0"
 serenity = "0.11.2"
 strip-ansi-escapes = "0.1.1"
 tokio = "1.19.2"
-
-[features]
-default = [
-  # "nu-cli/shadow-rs",
-  # "sys",
-  # "ps",
-  # "ctrlc-support",
-  # "which-support",
-  # "term-support",
-  # "rustyline-support",
-  # "match",
-  # "post",
-  # "fetch",
-  # "zip-support",
-  # "dataframe",
-]
-#dataframe feature for nushell
-dataframe = [
-  # "nu-engine/dataframe",
-  # "nu-protocol/dataframe",
-  # "nu-command/dataframe",
-  # "nu-value-ext/dataframe",
-  # "nu-data/dataframe",
-  # "nu_plugin_post/dataframe",
-  # "nu_plugin_to_bson/dataframe",
-]
