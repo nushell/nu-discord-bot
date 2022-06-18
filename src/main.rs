@@ -17,9 +17,9 @@ use serenity::framework::standard::{
 use serenity::model::channel::Message;
 use serenity::model::prelude::Ready;
 use serenity::prelude::GatewayIntents;
-use std::env;
 use std::error::Error;
-use std::time::Duration;
+use std::sync::mpsc;
+use std::{env, thread};
 use strip_ansi_escapes::strip;
 
 #[command]
@@ -215,16 +215,30 @@ fn eval_block(
     Ok(result_without_colors.to_string())
 }
 
-async fn try_handle_message(msg: &Message) -> Result<String, HandlerError> {
-    if let Ok(res) = tokio::time::timeout(Duration::new(5, 0), handle_message(msg)).await {
-        res
-    } else {
-        Err(HandlerError::TimeoutError)
+fn try_handle_message(content: &str) -> Result<String, HandlerError> {
+    let (sender, receiver) = mpsc::channel();
+
+    let cloned_content = content.to_string();
+
+    let message_handling_thread =
+        thread::spawn(move || sender.send(handle_message(cloned_content)));
+
+    thread::sleep(std::time::Duration::new(5, 0));
+
+    match receiver.try_recv() {
+        Ok(result) => result,
+        Err(mpsc::TryRecvError::Empty) => {
+            drop(receiver);
+            drop(message_handling_thread);
+            // took more than 5 seconds
+            Err(HandlerError::TimeoutError)
+        }
+        Err(mpsc::TryRecvError::Disconnected) => unreachable!(),
     }
 }
 
-async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
-    let source = parse_message(&msg.content)?;
+fn handle_message(content: String) -> Result<String, HandlerError> {
+    let source = parse_message(&content)?;
     let mut sandbox = create_sandboxed_context();
     let mut stack = Stack::new();
 
@@ -238,7 +252,7 @@ async fn handle_message(msg: &Message) -> Result<String, HandlerError> {
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.content.starts_with("nu!") {
-            let reply = match try_handle_message(&msg).await {
+            let reply = match try_handle_message(&msg.content) {
                 Ok(res) => match res.is_empty() {
                   true => format!("```\n*Empty*\n```"),
                   false => format!("```\n{}\n```", res)

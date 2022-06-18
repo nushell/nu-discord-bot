@@ -1,1 +1,1 @@
-web: ./target/debug/nu-discord-bot
+web: target/debug/nu-discord-bot
