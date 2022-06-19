@@ -147,14 +147,14 @@ pub fn create_sandboxed_context() -> EngineState {
         };
 
         // System
-        bind_command! {
-            Benchmark,
-            Complete,
-            Exec,
-            External,
-            Ps,
-            Sys,
-        };
+        // bind_command! {
+        //     Benchmark,
+        //     Complete,
+        //     Exec,
+        //     External,
+        //     Ps,
+        //     Sys,
+        // };
 
         #[cfg(feature = "which-support")]
         bind_command! { Which };
@@ -198,19 +198,19 @@ pub fn create_sandboxed_context() -> EngineState {
         };
 
         // FileSystem
-        bind_command! {
-            Cd,
-            Cp,
-            Ls,
-            Mkdir,
-            Mv,
-            Open,
-            Rm,
-            Save,
-            Touch,
-            Glob,
-            Watch,
-        };
+        // bind_command! {
+        //     Cd,
+        //     Cp,
+        //     Ls,
+        //     Mkdir,
+        //     Mv,
+        //     Open,
+        //     Rm,
+        //     Save,
+        //     Touch,
+        //     Glob,
+        //     Watch,
+        // };
 
         // Platform
         // bind_command! {
@@ -242,14 +242,14 @@ pub fn create_sandboxed_context() -> EngineState {
         };
 
         // Shells
-        bind_command! {
-            Enter,
-            Exit,
-            GotoShell,
-            NextShell,
-            PrevShell,
-            Shells,
-        };
+        // bind_command! {
+        //     Enter,
+        //     Exit,
+        //     GotoShell,
+        //     NextShell,
+        //     PrevShell,
+        //     Shells,
+        // };
 
         // Formats
         bind_command! {
@@ -310,15 +310,15 @@ pub fn create_sandboxed_context() -> EngineState {
         };
 
         // Env
-        bind_command! {
-            Env,
-            LetEnv,
-            LoadEnv,
-            WithEnv,
-            ConfigNu,
-            ConfigEnv,
-            ConfigMeta,
-        };
+        // bind_command! {
+        //     Env,
+        //     LetEnv,
+        //     LoadEnv,
+        //     WithEnv,
+        //     ConfigNu,
+        //     ConfigEnv,
+        //     ConfigMeta,
+        // };
 
         // Math
         bind_command! {
@@ -379,10 +379,10 @@ pub fn create_sandboxed_context() -> EngineState {
         };
 
         // Experimental
-        bind_command! {
-            ViewSource,
-            IsAdmin,
-        };
+        // bind_command! {
+        //     ViewSource,
+        //     IsAdmin,
+        // };
 
         // Deprecated
         bind_command! {
