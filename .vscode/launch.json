@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'nushell-api'",
+            "name": "Debug executable 'nu-discord-bot'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=nushell-api",
-                    "--package=nushell-api"
+                    "--bin=nu-discord-bot",
+                    "--package=nu-discord-bot"
                 ],
                 "filter": {
-                    "name": "nushell-api",
+                    "name": "nu-discord-bot",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'nushell-api'",
+            "name": "Debug unit tests in executable 'nu-discord-bot'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=nushell-api",
-                    "--package=nushell-api"
+                    "--bin=nu-discord-bot",
+                    "--package=nu-discord-bot"
                 ],
                 "filter": {
-                    "name": "nushell-api",
+                    "name": "nu-discord-bot",
                     "kind": "bin"
                 }
             },

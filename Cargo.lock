@@ -1879,7 +1879,6 @@ dependencies = [
  "nu-parser",
  "nu-protocol",
  "serenity",
- "strip-ansi-escapes",
  "tokio",
 ]
 

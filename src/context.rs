@@ -3,6 +3,7 @@ use nu_protocol::engine::{EngineState, StateWorkingSet};
 
 pub fn create_sandboxed_context() -> EngineState {
     let mut engine_state = EngineState::new();
+    engine_state.config.use_ansi_coloring = false;
 
     let delta = {
         let mut working_set = StateWorkingSet::new(&engine_state);

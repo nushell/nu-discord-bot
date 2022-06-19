@@ -2,7 +2,6 @@ mod context;
 use context::create_sandboxed_context;
 
 use dotenv::dotenv;
-use nu_cli::get_init_cwd;
 use nu_engine::eval_expression_with_input;
 use nu_parser::{parse, ParseError};
 use nu_protocol::ast::{Block, Call};
@@ -18,9 +17,9 @@ use serenity::model::channel::Message;
 use serenity::model::prelude::Ready;
 use serenity::prelude::GatewayIntents;
 use std::error::Error;
+use std::path::PathBuf;
 use std::sync::mpsc;
 use std::{env, thread};
-use strip_ansi_escapes::strip;
 
 #[command]
 async fn about(ctx: &Context, msg: &Message) -> CommandResult {
@@ -43,36 +42,34 @@ enum HandlerError {
     TimeoutError,
 }
 
-fn parse_single_message<'a>(msg: &'a str) -> Result<&'a [u8], HandlerError> {
+fn parse_single_message<'a>(msg: &'a str) -> Result<&'a str, HandlerError> {
     let msg = msg.trim();
 
-    if let Some(msg) = msg
+    if let Some(msg_content) = msg
         .strip_prefix("nu! `")
         .and_then(|msg| msg.strip_suffix("`"))
     {
-        return Ok(msg.as_bytes());
+        return Ok(msg_content);
     }
 
     return Err(HandlerError::FormatError);
 }
 
-fn parse_block_message<'a>(msg: &'a str) -> Result<&'a [u8], HandlerError> {
+fn parse_block_message<'a>(msg: &'a str) -> Result<&'a str, HandlerError> {
     let msg = msg.trim();
 
     if let Some(msg) = msg
         .strip_prefix("nu!\n```")
         .and_then(|msg| msg.strip_suffix("```"))
     {
-        return Ok(msg.as_bytes());
+        return Ok(msg);
     }
 
     return Err(HandlerError::FormatError);
 }
 
-fn parse_message<'a>(msg: &'a str) -> Result<&'a [u8], HandlerError> {
-    parse_single_message(msg)
-        .or(parse_block_message(msg))
-        .or(Err(HandlerError::FormatError))
+fn parse_message<'a>(msg: &'a str) -> Result<&'a str, HandlerError> {
+    parse_single_message(msg).or(parse_block_message(msg))
 }
 
 fn parse_command<'a>(
@@ -90,7 +87,7 @@ fn parse_command<'a>(
         &[],
     );
 
-    let cwd = get_init_cwd();
+    let cwd = PathBuf::from("/");
 
     let delta = working_set.render();
 
@@ -110,109 +107,114 @@ fn eval_block(
     stack: &mut Stack,
     block: &Block,
 ) -> Result<String, ShellError> {
-    let num_pipelines = block.len();
     let mut input = PipelineData::new(Span { start: 0, end: 0 });
     let mut result = "".to_string();
 
-    for (pipeline_idx, pipeline) in block.pipelines.iter().enumerate() {
+    for pipeline in block.pipelines.iter() {
         for elem in pipeline.expressions.iter() {
             input = eval_expression_with_input(engine_state, stack, elem, input, false, false)?
         }
 
-        if pipeline_idx < (num_pipelines) - 1 {
-            match input {
-                PipelineData::Value(Value::Nothing { .. }, ..) => {}
-                PipelineData::ExternalStream {
-                    ref mut exit_code, ..
-                } => {
-                    let exit_code = exit_code.take();
+        match input {
+            PipelineData::Value(Value::Nothing { .. }, ..) => {}
+            PipelineData::ExternalStream {
+                ref mut exit_code, ..
+            } => {
+                let exit_code = exit_code.take();
 
-                    // Drain the input to the screen via tabular output
-                    let config = engine_state.get_config();
+                // Drain the input to the screen via tabular output
+                let config = engine_state.get_config();
 
-                    match engine_state.find_decl("table".as_bytes(), &[]) {
-                        Some(decl_id) => {
-                            let table = engine_state.get_decl(decl_id).run(
-                                engine_state,
-                                stack,
-                                &Call::new(Span::new(0, 0)),
-                                input,
-                            )?;
+                match engine_state.find_decl("table".as_bytes(), &[]) {
+                    Some(decl_id) => {
+                        let table = engine_state.get_decl(decl_id).run(
+                            engine_state,
+                            stack,
+                            &Call::new(Span::new(0, 0)),
+                            input,
+                        )?;
 
-                            for item in table {
-                                if let Value::Error { error } = item {
-                                    return Err(error);
-                                }
-
-                                result.push_str(&item.into_string("\n", config));
-                                result.push_str("\n");
+                        for item in table {
+                            if let Value::Error { error } = item {
+                                return Err(error);
                             }
-                        }
-                        None => {
-                            for item in input {
-                                if let Value::Error { error } = item {
-                                    return Err(error);
-                                }
 
-                                result.push_str(&item.into_string("\n", config));
-                                result.push_str("\n");
-                            }
-                        }
-                    };
-
-                    if let Some(exit_code) = exit_code {
-                        let mut v: Vec<_> = exit_code.collect();
-
-                        if let Some(v) = v.pop() {
-                            stack.add_env_var("LAST_EXIT_CODE".into(), v);
+                            result.push_str(&item.into_string("\n", config));
+                            result.push_str("\n");
                         }
                     }
-                }
-                _ => {
-                    // Drain the input to the screen via tabular output
-                    let config = engine_state.get_config();
-
-                    match engine_state.find_decl("table".as_bytes(), &[]) {
-                        Some(decl_id) => {
-                            let table = engine_state.get_decl(decl_id).run(
-                                engine_state,
-                                stack,
-                                &Call::new(Span::new(0, 0)),
-                                input,
-                            )?;
-
-                            for item in table {
-                                if let Value::Error { error } = item {
-                                    return Err(error);
-                                }
-
-                                result.push_str(&item.into_string("\n", config));
-                                result.push_str("\n");
+                    None => {
+                        for item in input {
+                            if let Value::Error { error } = item {
+                                return Err(error);
                             }
-                        }
-                        None => {
-                            for item in input {
-                                if let Value::Error { error } = item {
-                                    return Err(error);
-                                }
 
-                                result.push_str(&item.into_string("\n", config));
-                                result.push_str("\n");
-                            }
+                            result.push_str(&item.into_string("\n", config));
+                            result.push_str("\n");
                         }
-                    };
+                    }
+                };
+
+                if let Some(exit_code) = exit_code {
+                    let mut v: Vec<_> = exit_code.collect();
+
+                    if let Some(v) = v.pop() {
+                        stack.add_env_var("LAST_EXIT_CODE".into(), v);
+                    }
                 }
             }
+            _ => {
+                // Drain the input to the screen via tabular output
+                let config = engine_state.get_config();
 
-            input = PipelineData::new(Span { start: 0, end: 0 })
+                match engine_state.find_decl("table".as_bytes(), &[]) {
+                    Some(decl_id) => {
+                        let table = engine_state.get_decl(decl_id).run(
+                            engine_state,
+                            stack,
+                            &Call::new(Span::new(0, 0)),
+                            input,
+                        )?;
+
+                        for item in table {
+                            if let Value::Error { error } = item {
+                                return Err(error);
+                            }
+
+                            result.push_str(&item.into_string("\n", config));
+                            result.push_str("\n");
+                        }
+                    }
+                    None => {
+                        for item in input {
+                            if let Value::Error { error } = item {
+                                return Err(error);
+                            }
+
+                            result.push_str(&item.into_string("\n", config));
+                            result.push_str("\n");
+                        }
+                    }
+                };
+            }
         }
+
+        input = PipelineData::new(Span { start: 0, end: 0 })
     }
 
-    let stripped_result = strip(result)?;
+    Ok(result)
+}
 
-    let result_without_colors = String::from_utf8_lossy(&stripped_result);
+fn handle_message(content: String) -> Result<String, HandlerError> {
+    let source = parse_message(&content)?.as_bytes();
 
-    Ok(result_without_colors.to_string())
+    let mut sandbox = create_sandboxed_context();
+    let mut stack = Stack::new();
+
+    let block = parse_command(&mut sandbox, &mut stack, source)?;
+    let out = eval_block(&mut sandbox, &mut stack, &block).map_err(HandlerError::ShellError);
+
+    out
 }
 
 fn try_handle_message(content: &str) -> Result<String, HandlerError> {
@@ -223,29 +225,39 @@ fn try_handle_message(content: &str) -> Result<String, HandlerError> {
     let message_handling_thread =
         thread::spawn(move || sender.send(handle_message(cloned_content)));
 
-    thread::sleep(std::time::Duration::new(5, 0));
-
-    match receiver.try_recv() {
+    match receiver.recv_timeout(std::time::Duration::new(1000, 0)) {
         Ok(result) => result,
-        Err(mpsc::TryRecvError::Empty) => {
+        Err(mpsc::RecvTimeoutError::Timeout) => {
             drop(receiver);
             drop(message_handling_thread);
             // took more than 5 seconds
             Err(HandlerError::TimeoutError)
         }
-        Err(mpsc::TryRecvError::Disconnected) => unreachable!(),
+        Err(mpsc::RecvTimeoutError::Disconnected) => unreachable!(),
     }
 }
 
-fn handle_message(content: String) -> Result<String, HandlerError> {
-    let source = parse_message(&content)?;
-    let mut sandbox = create_sandboxed_context();
-    let mut stack = Stack::new();
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
 
-    let block = parse_command(&mut sandbox, &mut stack, source)?;
-    let out = eval_block(&mut sandbox, &mut stack, &block).map_err(HandlerError::ShellError);
+    #[test]
+    fn test_add() {
+        let result = try_handle_message(&"nu! `3 + 4`");
 
-    out
+        match result {
+            Ok(result) => assert_eq!(result, "7\n".to_owned()),
+            Err(error) => panic!("{:?}", error),
+        }
+    }
+
+    #[test]
+    fn parse_add() {
+        let result = parse_message("nu! `3 + 4`");
+        assert!(result.is_ok(), "{:?}", result);
+        assert_eq!(result.unwrap(), "3 + 4");
+    }
 }
 
 #[async_trait]
@@ -259,8 +271,8 @@ impl EventHandler for Handler {
                 }
 
                 Err(HandlerError::FormatError) => "Improper formatting. Format as either \"nu! `[command]`\" or \"nu!\" followed by a code block.".to_string(),
-                Err(HandlerError::ParseError(parse_error)) => parse_error.to_string(),
-                Err(HandlerError::ShellError(shell_error)) => shell_error.to_string(),
+                Err(HandlerError::ParseError(parse_error)) => format!("ParseError: {}", parse_error.to_string()),
+                Err(HandlerError::ShellError(shell_error)) => format!("ShellError: {}", shell_error.to_string()),
                 Err(HandlerError::TimeoutError) => "Timeout on command (5s).".to_string()
             };
 
