@@ -147,14 +147,14 @@ pub fn create_sandboxed_context() -> EngineState {
         };
 
         // System
-        // bind_command! {
+        bind_command! {
         //     Benchmark,
         //     Complete,
         //     Exec,
         //     External,
         //     Ps,
-        //     Sys,
-        // };
+            Sys,
+        };
 
         #[cfg(feature = "which-support")]
         bind_command! { Which };
@@ -342,8 +342,8 @@ pub fn create_sandboxed_context() -> EngineState {
 
         // Network
         bind_command! {
-            Fetch,
-            Post,
+            // Fetch,
+            // Post,
             Url,
             UrlHost,
             UrlPath,
