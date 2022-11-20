@@ -49,6 +49,10 @@
         # artifacts from above.
         my-crate = craneLib.buildPackage {
           inherit cargoArtifacts src buildInputs;
+
+          # Disable the cargo tests here, as we are already doing
+          # tests with `nextest` below.
+          doCheck = false;
         };
       in
       {
