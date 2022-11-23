@@ -74,7 +74,6 @@ fn parse_message<'a>(msg: &'a str) -> Result<&'a str, HandlerError> {
 
 fn parse_command<'a>(
     engine_state: &mut EngineState,
-    stack: &mut Stack,
     source: &'a [u8],
 ) -> Result<Block, HandlerError> {
     let mut working_set = StateWorkingSet::new(engine_state);
@@ -87,12 +86,10 @@ fn parse_command<'a>(
         &[],
     );
 
-    let cwd = PathBuf::from("/");
-
     let delta = working_set.render();
 
     engine_state
-        .merge_delta(delta, Some(stack), &cwd)
+        .merge_delta(delta)
         .map_err(HandlerError::ShellError)?;
 
     if let Some(err) = err {
@@ -112,7 +109,7 @@ fn eval_block(
 
     for pipeline in block.pipelines.iter() {
         for elem in pipeline.expressions.iter() {
-            input = eval_expression_with_input(engine_state, stack, elem, input, false, false)?
+            input = eval_expression_with_input(engine_state, stack, elem, input, false, false)?.0;
         }
 
         match input {
@@ -211,7 +208,7 @@ fn handle_message(content: String) -> Result<String, HandlerError> {
     let mut sandbox = create_sandboxed_context();
     let mut stack = Stack::new();
 
-    let block = parse_command(&mut sandbox, &mut stack, source)?;
+    let block = parse_command(&mut sandbox, source)?;
     let out = eval_block(&mut sandbox, &mut stack, &block).map_err(HandlerError::ShellError);
 
     out
