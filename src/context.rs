@@ -50,10 +50,8 @@ pub fn create_sandboxed_context() -> EngineState {
             If,
             Ignore,
             Overlay,
-            OverlayAdd,
             OverlayList,
             OverlayNew,
-            OverlayRemove,
             Let,
             Metadata,
             Module,
@@ -375,7 +373,9 @@ pub fn create_sandboxed_context() -> EngineState {
             Hash,
             HashMd5::default(),
             HashSha256::default(),
-            Base64,
+            HashBase64,
+            DecodeBase64,
+            EncodeBase64
         };
 
         // Experimental
@@ -386,26 +386,16 @@ pub fn create_sandboxed_context() -> EngineState {
 
         // Deprecated
         bind_command! {
-            PivotDeprecated,
             StrDatetimeDeprecated,
             StrDecimalDeprecated,
             StrIntDeprecated,
-            MatchDeprecated,
-            NthDeprecated,
-            UnaliasDeprecated,
             StrFindReplaceDeprecated,
-            KeepDeprecated,
-            KeepUntilDeprecated,
-            KeepWhileDeprecated,
         };
-
-        #[cfg(feature = "plugin")]
-        bind_command!(Register);
 
         working_set.render()
     };
 
-    let _ = engine_state.merge_delta(delta, None, &"/");
+    let _ = engine_state.merge_delta(delta);
 
     engine_state
 }
